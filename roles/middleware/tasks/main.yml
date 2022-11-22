@@ -1,0 +1,2 @@
+- import_tasks: redis_operator.yml
+  when: 'middleware_redis_install|bool'

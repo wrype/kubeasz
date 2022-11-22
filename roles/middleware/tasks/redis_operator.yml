@@ -1,0 +1,15 @@
+- connection: local
+  block:
+    - name: helm 创建 redis-operator {{ middleware_redis_operator_ver }}
+      shell: "{{ base_dir }}/bin/helm upgrade redis-operator --install --create-namespace \
+              -n {{ prom_namespace }} \
+              {{ base_dir }}/roles/middleware/files/redis-operator-{{ middleware_redis_operator_ver }}.tgz"
+
+    - name: 配置 redis {{ middleware_redis_mode }} values.yaml
+      template: src=redis-{{ middleware_redis_mode }}-values-{{ middleware_redis_chart_ver }}.yaml.j2 dest={{ cluster_dir }}/yml/redis-{{ middleware_redis_mode }}-values.yaml
+
+    - name: helm 创建 redis {{ middleware_redis_mode }} {{ middleware_redis_chart_ver }}
+      shell: "{{ base_dir }}/bin/helm upgrade redis --install \
+              --create-namespace -n {{ middleware_redis_ns }} \
+              -f {{ cluster_dir }}/yml/redis-{{ middleware_redis_mode }}-values.yaml \
+              {{ base_dir }}/roles/middleware/files/redis-{{ middleware_redis_mode }}-{{ middleware_redis_chart_ver }}.tgz"

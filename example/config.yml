@@ -173,12 +173,12 @@ dashboardVer: "__dashboard__"
 dashboardMetricsScraperVer: "__dash_metrics__"
 
 # prometheus 自动安装
-prom_install: "no"
+prom_install: "yes"
 prom_namespace: "monitor"
 prom_chart_ver: "__prom_chart__"
 
 # nfs-provisioner 自动安装
-nfs_provisioner_install: "no"
+nfs_provisioner_install: "yes"
 nfs_provisioner_namespace: "kube-system"
 nfs_provisioner_ver: "__nfs_provisioner__"
 nfs_storage_class: "managed-nfs-storage"
@@ -205,3 +205,10 @@ HARBOR_WITH_NOTARY: false
 HARBOR_WITH_TRIVY: false
 HARBOR_WITH_CLAIR: false
 HARBOR_WITH_CHARTMUSEUM: true
+
+middleware_redis_install: true
+middleware_redis_ns: ot-operators
+middleware_redis_operator_ver: 0.12.0
+middleware_redis_chart_ver: 0.12.2
+middleware_redis_mode: "cluster" # standalone or cluster
+middleware_redis_storage_class: "{{ nfs_storage_class }}"
