@@ -1,0 +1,10 @@
+- connection: local
+  block:
+    - name: 配置 zookeeper values.yaml
+      template: src=pulsar-values-cs-{{ middleware_zk_ver }}.yaml.j2 dest={{ cluster_dir }}/yml/zk-values-cs.yaml
+
+    - name: "helm 创建 zookeeper {{ middleware_zk_ver }} (Release: {{ middleware_zk_release }})"
+      shell: "{{ base_dir }}/bin/helm upgrade {{ middleware_zk_release }} --install --create-namespace \
+              -n {{ middleware_zk_ns }} \
+              -f {{ cluster_dir }}/yml/zk-values-cs.yaml \
+              {{ base_dir }}/roles/middleware/files/pulsar-{{ middleware_zk_ver }}.tgz"

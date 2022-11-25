@@ -67,7 +67,7 @@ serviceMonitor:
   enabled: true
   interval: 30s
   scrapeTimeout: 10s
-  namespace: {{ prom_namespace }}
+  namespace: {{ middleware_redis_ns }}
 
 redisExporter:
   enabled: true

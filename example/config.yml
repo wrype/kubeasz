@@ -212,3 +212,11 @@ middleware_redis_operator_ver: 0.12.0
 middleware_redis_chart_ver: 0.12.2
 middleware_redis_mode: "cluster" # standalone or cluster
 middleware_redis_storage_class: "{{ nfs_storage_class }}"
+middleware_redis_release: redis-cluster-test0
+
+middleware_zk_install: false
+middleware_zk_ver: 3.0.0
+middleware_zk_ns: pulsar-zk
+middleware_zk_release: zk
+middleware_zk_storage_class: "{{ nfs_storage_class }}"
+middleware_zk_replica_count: 3

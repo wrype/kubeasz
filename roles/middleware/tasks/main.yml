@@ -1,2 +1,5 @@
-- import_tasks: redis_operator.yml
+- import_tasks: redis.yml
   when: 'middleware_redis_install|bool'
+
+- import_tasks: zk.yml
+  when: 'middleware_zk_install|bool'

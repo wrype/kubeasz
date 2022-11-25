@@ -8,8 +8,8 @@
     - name: 配置 redis {{ middleware_redis_mode }} values.yaml
       template: src=redis-{{ middleware_redis_mode }}-values-{{ middleware_redis_chart_ver }}.yaml.j2 dest={{ cluster_dir }}/yml/redis-{{ middleware_redis_mode }}-values.yaml
 
-    - name: helm 创建 redis {{ middleware_redis_mode }} {{ middleware_redis_chart_ver }}
-      shell: "{{ base_dir }}/bin/helm upgrade redis --install \
+    - name: "helm 创建 redis {{ middleware_redis_mode }} {{ middleware_redis_chart_ver }} (Release: {{ middleware_redis_release }})"
+      shell: "{{ base_dir }}/bin/helm upgrade {{ middleware_redis_release }} --install \
               --create-namespace -n {{ middleware_redis_ns }} \
               -f {{ cluster_dir }}/yml/redis-{{ middleware_redis_mode }}-values.yaml \
               {{ base_dir }}/roles/middleware/files/redis-{{ middleware_redis_mode }}-{{ middleware_redis_chart_ver }}.tgz"
