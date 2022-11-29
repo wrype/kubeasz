@@ -1,5 +1,7 @@
 # 前置要求
 
+**需要重新生产`easzlab/kubeasz`镜像，参考 [修改说明.md](../../guide/../setup/修改说明.md)**
+
 部署好 k8s 集群，并部署好 cluster-addon 中的 nfs-provisioner、prometheus
 
 > 未初始化 k8s 集群，可以修改 example/config.yml；已经存在 k8s 集群，修改 cluster/\<cluster name\>/config.yml
