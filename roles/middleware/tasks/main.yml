@@ -3,3 +3,6 @@
 
 - import_tasks: zk.yml
   when: 'middleware_zk_install|bool'
+
+- import_tasks: ingress-nginx.yml
+  when: 'middleware_ingress_install|bool'

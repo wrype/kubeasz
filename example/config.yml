@@ -220,3 +220,10 @@ middleware_zk_ns: pulsar-zk
 middleware_zk_release: zk
 middleware_zk_storage_class: "{{ nfs_storage_class }}"
 middleware_zk_replica_count: 3
+
+middleware_ingress_install: true
+middleware_ingress_chart_ver: 4.4.0
+middleware_ingress_release: ingress
+middleware_ingress_ns: default
+middleware_ingress_controller_kind: Deployment # Deployment or DaemonSet
+middleware_ingress_example_prom: true

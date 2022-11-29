@@ -1,0 +1,24 @@
+- connection: local
+  block:
+    - name: 配置 ingress-nginx values.yaml
+      template: src=ingress-nginx-values-{{ middleware_ingress_chart_ver }}.yaml.j2 dest={{ cluster_dir }}/yml/ingress-nginx-values.yaml
+
+    - name: "helm 创建 ingress-nginx {{ middleware_ingress_chart_ver }} (Release: {{ middleware_ingress_release }})"
+      shell: "{{ base_dir }}/bin/helm upgrade {{ middleware_ingress_release }} --install --create-namespace \
+              -n {{ middleware_ingress_ns }} \
+              -f {{ cluster_dir }}/yml/ingress-nginx-values.yaml \
+              {{ base_dir }}/roles/middleware/files/ingress-nginx-{{ middleware_ingress_chart_ver }}.tgz"
+
+    - name: 轮询等待 ingress controller 就绪
+      shell: "{{ base_dir }}/bin/kubectl wait -n {{ middleware_ingress_ns }} --for=condition=ready pod -l app.kubernetes.io/name=ingress-nginx,app.kubernetes.io/component=controller --timeout 15s"
+      register: pod_wait_result
+      until: '"condition met" in pod_wait_result.stdout'
+      retries: 5
+      delay: 10
+      ignore_errors: true
+      when: 'middleware_ingress_example_prom|bool'
+
+    - name: 创建 ingress 示例 (Prometheus、Grafana)
+      shell: "{{ base_dir }}/bin/kubectl apply -n {{ prom_namespace }} \
+              -f {{ base_dir }}/roles/middleware/files/ingress-prom.yml"
+      when: 'middleware_ingress_example_prom|bool'

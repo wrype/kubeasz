@@ -1,0 +1,37 @@
+fullnameOverride: ingress-nginx
+
+controller:
+  kind: {{ middleware_ingress_controller_kind }}
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "10254"
+
+  hostPort:
+    enabled: true
+
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+  image:
+    registry: registry.cn-hangzhou.aliyuncs.com
+    image: wrype/controller
+    digest: null
+
+  admissionWebhooks:
+    patch:
+      image:
+        registry: registry.cn-hangzhou.aliyuncs.com
+        image: wrype/kube-webhook-certgen
+        digest: null
+
+## Default 404 backend
+##
+defaultBackend:
+  enabled: true
+
+  image:
+    registry: registry.cn-hangzhou.aliyuncs.com
+    image: wrype/defaultbackend-amd64

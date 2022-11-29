@@ -58,6 +58,9 @@ zookeeper:
     data:
       storageClassName: {{ middleware_zk_storage_class }}
 
+  affinity:
+    anti_affinity: true
+
 bookkeeper:
   # Disable pod monitor since we're disabling CRD installation
   podMonitor:
