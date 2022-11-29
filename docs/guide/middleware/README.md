@@ -1,6 +1,6 @@
 # 前置要求
 
-**需要重新生产`easzlab/kubeasz`镜像，参考 [修改说明.md](../../guide/../setup/修改说明.md)**
+**需要重新生成`easzlab/kubeasz`镜像，参考 [修改说明.md](../../guide/../setup/修改说明.md)**
 
 部署好 k8s 集群，并部署好 cluster-addon 中的 nfs-provisioner、prometheus
 
