@@ -14,8 +14,8 @@ set -o pipefail
 
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=20.10.18
-KUBEASZ_VER=3.5.0
-K8S_BIN_VER=v1.26.0
+KUBEASZ_VER=3.5.0-aarch64-1.24
+K8S_BIN_VER=v1.24.8
 EXT_BIN_VER=1.6.3
 SYS_PKG_VER=0.5.2
 HARBOR_VER=v2.1.5
@@ -28,7 +28,7 @@ corednsVer=1.9.3
 dashboardVer=v2.7.0
 dashboardMetricsScraperVer=v1.0.8
 metricsVer=v0.5.2
-pauseVer=3.9
+pauseVer=3.7
 
 # images not downloaded by default(only download  with '-X')
 ciliumVer=1.12.4
@@ -369,20 +369,24 @@ function get_default_images() {
 
   # pause
   if [[ ! -f "$imageDir/pause_$pauseVer.tar" ]];then
-    docker pull --platform $DOCKER_ARCH "easzlab/pause:$pauseVer" && \
-    docker save -o "$imageDir/pause_$pauseVer.tar" "easzlab/pause:$pauseVer"
+    docker pull --platform $DOCKER_ARCH "wrype/pause:$pauseVer" && \
+    docker save -o "$imageDir/pause_$pauseVer.tar" "wrype/pause:$pauseVer"
   else
     docker load -i "$imageDir/pause_$pauseVer.tar"
   fi
-  docker tag "easzlab/pause:$pauseVer" "easzlab.io.local:5000/easzlab/pause:$pauseVer"
+  docker tag "wrype/pause:$pauseVer" "easzlab.io.local:5000/easzlab/pause:$pauseVer"
   docker push "easzlab.io.local:5000/easzlab/pause:$pauseVer"
 
   # kubeasz
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
+    # 用于在目标机器上重新构建 kubeasz 镜像
+    docker pull --platform $DOCKER_ARCH easzlab/ansible:2.10.6-lite
     if [[ -z `docker image ls -q easzlab/kubeasz:$KUBEASZ_VER` ]];then
       docker pull --platform $DOCKER_ARCH "easzlab/kubeasz:$KUBEASZ_VER"
     fi
-    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER"
+    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" easzlab/ansible:2.10.6-lite "easzlab/kubeasz:$KUBEASZ_VER"
+    # 还原镜像
+    docker pull easzlab/ansible:2.10.6-lite
   else
     docker load -i "$imageDir/kubeasz_$KUBEASZ_VER.tar"
   fi
