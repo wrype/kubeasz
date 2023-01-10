@@ -37,3 +37,7 @@ docker build -t easzlab/kubeasz:${KUBEASZ_VER} .
 ![](screenshot-20221222-125021.png)
 
 在目标机器出现以上错误是因为 kubeasz 镜像依旧是 amd64 架构的，需要在 `/etc/kubeasz` 重新构建镜像，然后导出替换掉 `/etc/kubeasz/down/kubeasz_XXX.tar`
+
+### ctr 导入镜像
+
+可以在其他机器上通过 `docker pull --> docker save` 保存离线镜像，然后把文件上传到目标机器上，使用 `ctr -n k8s.io i import xxx.tar` 导入镜像；镜像只能逐个保存到独立的文件，ctr 导入文件时只能识别一个镜像
