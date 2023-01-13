@@ -21,7 +21,7 @@ function get_kubeasz() {
 
 ```bash
 # 修改脚本后要更改 KUBEASZ_VER 版本，并重新生成镜像
-export KUBEASZ_VER=3.5.0-aarch64-1.24
+export KUBEASZ_VER=3.4.3-aarch64-1.24
 sed -i "s/^KUBEASZ_VER=.*$/KUBEASZ_VER=${KUBEASZ_VER}/g" ezdown
 docker build -t easzlab/kubeasz:${KUBEASZ_VER} .
 ```
