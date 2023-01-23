@@ -14,7 +14,7 @@ set -o pipefail
 
 # default settings, can be overridden by cmd line options, see usage
 DOCKER_VER=20.10.18
-KUBEASZ_VER=3.3.2
+KUBEASZ_VER=3.3.2-aarch64-1.24
 K8S_BIN_VER=v1.24.9
 EXT_BIN_VER=1.6.4
 SYS_PKG_VER=0.5.2
@@ -28,7 +28,7 @@ corednsVer=1.9.3
 dashboardVer=v2.7.0
 dashboardMetricsScraperVer=v1.0.8
 metricsVer=v0.5.2
-pauseVer=3.9
+pauseVer=3.7
 
 # images not downloaded by default(only download  with '-X')
 ciliumVer=1.12.4
@@ -82,11 +82,12 @@ function logger() {
 }
 
 function download_docker() {
-  if [[ "$REGISTRY_MIRROR" == CN ]];then
-    DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
-  else
+  # if [[ "$REGISTRY_MIRROR" == CN ]];then
+  #   DOCKER_URL="https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
+  # else
+    # download.docker.com 做了 cdn
     DOCKER_URL="https://download.docker.com/linux/static/stable/${ARCH}/docker-${DOCKER_VER}.tgz"
-  fi
+  # fi
 
   if [[ -f "$BASE/down/docker-${DOCKER_VER}.tgz" ]];then
     logger warn "docker binaries already existed"
@@ -241,7 +242,7 @@ function get_k8s_bin() {
   logger info "downloading kubernetes: $K8S_BIN_VER binaries"
   rm -rf "$BASE/k8s_bin_tmp"
   docker ps -a |grep -q temp_k8s_bin && { logger debug "remove existing container"; docker rm -f temp_k8s_bin; }
-  docker pull easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" && \
+  docker pull --platform $DOCKER_ARCH easzlab/kubeasz-k8s-bin:"$K8S_BIN_VER" && \
   logger debug "run a temporary container" && \
   docker run -d --name temp_k8s_bin easzlab/kubeasz-k8s-bin:${K8S_BIN_VER} && \
   logger debug "cp k8s binaries" && \
@@ -258,7 +259,7 @@ function get_ext_bin() {
   logger info "downloading extral binaries kubeasz-ext-bin:$EXT_BIN_VER"
   rm -rf "$BASE/extra_bin_tmp"
   docker ps -a |grep -q temp_ext_bin && { logger debug "remove existing container"; docker rm -f temp_ext_bin; }
-  docker pull "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
+  docker pull --platform $DOCKER_ARCH "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
   logger debug "run a temporary container" && \
   docker run -d --name temp_ext_bin "easzlab/kubeasz-ext-bin:$EXT_BIN_VER" && \
   logger debug "cp extral binaries" && \
@@ -274,7 +275,7 @@ function get_sys_pkg() {
 
   docker ps -a |grep -q temp_sys_pkg && { logger debug "remove existing container"; docker rm -f temp_sys_pkg; }
   logger info "downloading system packages kubeasz-sys-pkg:$SYS_PKG_VER"
-  docker pull "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
+  docker pull --platform $DOCKER_ARCH "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
   logger debug "run a temporary container" && \
   docker run -d --name temp_sys_pkg "easzlab/kubeasz-sys-pkg:$SYS_PKG_VER" && \
   logger debug "cp system packages" && \
@@ -288,7 +289,7 @@ function get_harbor_offline_pkg() {
 
   docker ps -a |grep -q temp_harbor && { logger debug "remove existing container"; docker rm -f temp_harbor; }
   logger info "downloading harbor-offline:$HARBOR_VER"
-  docker pull "easzlab/harbor-offline:$HARBOR_VER" && \
+  docker pull --platform $DOCKER_ARCH "easzlab/harbor-offline:$HARBOR_VER" && \
   logger debug "run a temporary container" && \
   docker run -d --name temp_harbor "easzlab/harbor-offline:$HARBOR_VER" && \
   logger debug "cp harbor-offline installer package" && \
@@ -302,9 +303,9 @@ function get_default_images() {
 
   # calico
   if [[ ! -f "$imageDir/calico_$calicoVer.tar" ]];then
-    docker pull "calico/cni:$calicoVer" && \
-    docker pull "calico/kube-controllers:$calicoVer" && \
-    docker pull "calico/node:$calicoVer" && \
+    docker pull --platform $DOCKER_ARCH "calico/cni:$calicoVer" && \
+    docker pull --platform $DOCKER_ARCH "calico/kube-controllers:$calicoVer" && \
+    docker pull --platform $DOCKER_ARCH "calico/node:$calicoVer" && \
     docker save -o "$imageDir/calico_$calicoVer.tar" "calico/cni:$calicoVer" "calico/kube-controllers:$calicoVer" "calico/node:$calicoVer"
   else
     docker load -i "$imageDir/calico_$calicoVer.tar"
@@ -318,7 +319,7 @@ function get_default_images() {
 
   # coredns
   if [[ ! -f "$imageDir/coredns_$corednsVer.tar" ]];then
-    docker pull "coredns/coredns:$corednsVer" && \
+    docker pull --platform $DOCKER_ARCH "coredns/coredns:$corednsVer" && \
     docker save -o "$imageDir/coredns_$corednsVer.tar" "coredns/coredns:$corednsVer"
   else
     docker load -i "$imageDir/coredns_$corednsVer.tar"
@@ -328,7 +329,7 @@ function get_default_images() {
 
   # dns-node-cache
   if [[ ! -f "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" ]];then
-    docker pull "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" && \
+    docker pull --platform $DOCKER_ARCH "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" && \
     docker save -o "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar" "easzlab/k8s-dns-node-cache:$dnsNodeCacheVer" 
   else
     docker load -i "$imageDir/k8s-dns-node-cache_$dnsNodeCacheVer.tar"
@@ -338,7 +339,7 @@ function get_default_images() {
 
   # dashboard
   if [[ ! -f "$imageDir/dashboard_$dashboardVer.tar" ]];then
-    docker pull "kubernetesui/dashboard:$dashboardVer" && \
+    docker pull --platform $DOCKER_ARCH "kubernetesui/dashboard:$dashboardVer" && \
     docker save -o "$imageDir/dashboard_$dashboardVer.tar" "kubernetesui/dashboard:$dashboardVer"
   else
     docker load -i "$imageDir/dashboard_$dashboardVer.tar"
@@ -348,7 +349,7 @@ function get_default_images() {
 
   # dashboard-metrics-scraper
   if [[ ! -f "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" ]];then
-    docker pull "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" && \
+    docker pull --platform $DOCKER_ARCH "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer" && \
     docker save -o "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar" "kubernetesui/metrics-scraper:$dashboardMetricsScraperVer"
   else
     docker load -i "$imageDir/metrics-scraper_$dashboardMetricsScraperVer.tar"
@@ -358,7 +359,7 @@ function get_default_images() {
 
   # metrics-server
   if [[ ! -f "$imageDir/metrics-server_$metricsVer.tar" ]];then
-    docker pull "easzlab/metrics-server:$metricsVer" && \
+    docker pull --platform $DOCKER_ARCH "easzlab/metrics-server:$metricsVer" && \
     docker save -o "$imageDir/metrics-server_$metricsVer.tar" "easzlab/metrics-server:$metricsVer"
   else
     docker load -i "$imageDir/metrics-server_$metricsVer.tar"
@@ -368,18 +369,24 @@ function get_default_images() {
 
   # pause
   if [[ ! -f "$imageDir/pause_$pauseVer.tar" ]];then
-    docker pull "easzlab/pause:$pauseVer" && \
-    docker save -o "$imageDir/pause_$pauseVer.tar" "easzlab/pause:$pauseVer"
+    docker pull --platform $DOCKER_ARCH "wrype/pause:$pauseVer" && \
+    docker save -o "$imageDir/pause_$pauseVer.tar" "wrype/pause:$pauseVer"
   else
     docker load -i "$imageDir/pause_$pauseVer.tar"
   fi
-  docker tag "easzlab/pause:$pauseVer" "easzlab.io.local:5000/easzlab/pause:$pauseVer"
+  docker tag "wrype/pause:$pauseVer" "easzlab.io.local:5000/easzlab/pause:$pauseVer"
   docker push "easzlab.io.local:5000/easzlab/pause:$pauseVer"
 
   # kubeasz
   if [[ ! -f "$imageDir/kubeasz_$KUBEASZ_VER.tar" ]];then
-    docker pull "easzlab/kubeasz:$KUBEASZ_VER" && \
-    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" "easzlab/kubeasz:$KUBEASZ_VER"
+    # 用于在目标机器上重新构建 kubeasz 镜像
+    docker pull --platform $DOCKER_ARCH easzlab/ansible:2.10.6-lite
+    if [[ -z `docker image ls -q easzlab/kubeasz:$KUBEASZ_VER` ]];then
+      docker pull --platform $DOCKER_ARCH "easzlab/kubeasz:$KUBEASZ_VER"
+    fi
+    docker save -o "$imageDir/kubeasz_$KUBEASZ_VER.tar" easzlab/ansible:2.10.6-lite "easzlab/kubeasz:$KUBEASZ_VER"
+    # 还原镜像
+    docker pull easzlab/ansible:2.10.6-lite
   else
     docker load -i "$imageDir/kubeasz_$KUBEASZ_VER.tar"
   fi
@@ -390,8 +397,8 @@ function get_extra_images() {
 
   # flannel
   if [[ ! -f "$imageDir/flannel_$flannelVer.tar" ]];then
-    docker pull "rancher/mirrored-flannelcni-flannel:$flannelVer" && \
-    docker pull "rancher/mirrored-flannelcni-flannel-cni-plugin:v1.1.0" && \
+    docker pull --platform $DOCKER_ARCH "rancher/mirrored-flannelcni-flannel:$flannelVer" && \
+    docker pull --platform $DOCKER_ARCH "rancher/mirrored-flannelcni-flannel-cni-plugin:v1.1.0" && \
     docker save -o "$imageDir/flannel_$flannelVer.tar" "rancher/mirrored-flannelcni-flannel:$flannelVer" "rancher/mirrored-flannelcni-flannel-cni-plugin:v1.1.0"
   else
     docker load -i "$imageDir/flannel_$flannelVer.tar"
@@ -403,7 +410,7 @@ function get_extra_images() {
 
   # nfs-provisioner
   if [[ ! -f "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" ]];then
-    docker pull "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
+    docker pull --platform $DOCKER_ARCH "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer" && \
     docker save -o "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar" "easzlab/nfs-subdir-external-provisioner:$nfsProvisionerVer"
   else
     docker load -i "$imageDir/nfs-provisioner_$nfsProvisionerVer.tar"
@@ -413,13 +420,13 @@ function get_extra_images() {
 
   # cilium
   if [[ ! -f "$imageDir/cilium_$ciliumVer.tar" ]];then
-    docker pull "cilium/cilium:v$ciliumVer" && \
-    docker pull "cilium/operator-generic:v$ciliumVer" && \
-    docker pull "cilium/hubble-relay:v$ciliumVer" && \
-    docker pull cilium/hubble-ui-backend:v0.9.2 && \
-    docker pull cilium/hubble-ui:v0.9.2 && \
-    docker pull easzlab/json-mock:v1.3.0 && \
-    docker pull easzlab/alpine-curl:v7.85.0 && \
+    docker pull --platform $DOCKER_ARCH "cilium/cilium:v$ciliumVer" && \
+    docker pull --platform $DOCKER_ARCH "cilium/operator-generic:v$ciliumVer" && \
+    docker pull --platform $DOCKER_ARCH "cilium/hubble-relay:v$ciliumVer" && \
+    docker pull --platform $DOCKER_ARCH cilium/hubble-ui-backend:v0.9.2 && \
+    docker pull --platform $DOCKER_ARCH cilium/hubble-ui:v0.9.2 && \
+    docker pull --platform $DOCKER_ARCH easzlab/json-mock:v1.3.0 && \
+    docker pull --platform $DOCKER_ARCH easzlab/alpine-curl:v7.85.0 && \
     docker save -o "$imageDir/cilium_$ciliumVer.tar" "cilium/cilium:v$ciliumVer" \
 		"cilium/operator-generic:v$ciliumVer" \
 		"cilium/hubble-relay:v$ciliumVer" \
@@ -447,15 +454,15 @@ function get_extra_images() {
 
   # prometheus chart
   if [[ ! -f "$imageDir/prometheus-chart_$promChartVer.tar" ]];then
-    docker pull easzlab/kube-state-metrics:v2.5.0 && \
-    docker pull easzlab/kube-webhook-certgen:v1.2.0 && \
-    docker pull grafana/grafana:9.0.5 && \
-    docker pull quay.io/kiwigrid/k8s-sidecar:1.19.2 && \
-    docker pull quay.io/prometheus-operator/prometheus-config-reloader:v0.58.0 && \
-    docker pull quay.io/prometheus-operator/prometheus-operator:v0.58.0 && \
-    docker pull quay.io/prometheus/alertmanager:v0.24.0 && \
-    docker pull quay.io/prometheus/node-exporter:v1.3.1 && \
-    docker pull quay.io/prometheus/prometheus:v2.37.0 && \
+    docker pull --platform $DOCKER_ARCH easzlab/kube-state-metrics:v2.5.0 && \
+    docker pull --platform $DOCKER_ARCH easzlab/kube-webhook-certgen:v1.2.0 && \
+    docker pull --platform $DOCKER_ARCH grafana/grafana:9.0.5 && \
+    docker pull --platform $DOCKER_ARCH quay.io/kiwigrid/k8s-sidecar:1.19.2 && \
+    docker pull --platform $DOCKER_ARCH quay.io/prometheus-operator/prometheus-config-reloader:v0.58.0 && \
+    docker pull --platform $DOCKER_ARCH quay.io/prometheus-operator/prometheus-operator:v0.58.0 && \
+    docker pull --platform $DOCKER_ARCH quay.io/prometheus/alertmanager:v0.24.0 && \
+    docker pull --platform $DOCKER_ARCH quay.io/prometheus/node-exporter:v1.3.1 && \
+    docker pull --platform $DOCKER_ARCH quay.io/prometheus/prometheus:v2.37.0 && \
     docker save -o "$imageDir/prometheus-chart_$promChartVer.tar" \
         easzlab/kube-state-metrics:v2.5.0 \
         easzlab/kube-webhook-certgen:v1.2.0 \
@@ -505,7 +512,7 @@ function start_local_registry() {
   { logger warn "local_registry is already running"; return 0; }
 
   if [[ ! -f "$imageDir/registry-2.tar" ]];then
-    docker pull "registry:2" && \
+    docker pull --platform $DOCKER_ARCH "registry:2" && \
     docker save -o "$imageDir/registry-2.tar" "registry:2"
   fi
 
@@ -638,6 +645,9 @@ function main() {
   
   [[ "$ACTION" == "" ]] && { logger error "illegal option"; usage; exit 1; }
   
+  DOCKER_ARCH="linux/amd64"
+  [[ $ARCH == "aarch64" ]] && DOCKER_ARCH="linux/arm64"
+
   # excute cmd "$ACTION" 
   logger info "Action begin: $ACTION"
   ${ACTION} || { logger error "Action failed: $ACTION"; return 1; }
