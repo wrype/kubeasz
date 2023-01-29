@@ -36,11 +36,11 @@ if [[ -z `docker manifest inspect localhost:35000/golang:$GOLANG_VERSION` ]]; th
     docker manifest push --insecure localhost:35000/golang:$GOLANG_VERSION
 fi
 
-sed -e "s@__KUBE_ROOT__@${KUBE_ROOT}@g" -e "s/__VERSION__/$VERSION/g" Dockerfile |
-docker buildx build -f - \
+docker buildx build \
     --build-arg=GOLANG_VERSION=${GOLANG_VERSION} \
     --build-arg=KUBE_ROOT=`basename ${KUBE_ROOT}` \
     --build-arg=GO_RUNNER_VERSION=${GO_RUNNER_VERSION} \
     --platform linux/amd64,linux/arm64 \
+    --build-arg=VERSION=${VERSION} \
     --network=host \
     -t wrype/kubemark:$VERSION --push .

@@ -13,8 +13,8 @@
 # limitations under the License.
 FROM localhost:35000/k8s.gcr.io/debian-base:v2.0.0
 
-ARG BUILDOS
-ARG BUILDARCH
+ARG TARGETOS
+ARG TARGETARCH 
 ARG VERSION
 
 MAINTAINER Random Liu <lantaol@google.com>
@@ -24,9 +24,9 @@ RUN clean-install util-linux libsystemd0 bash
 # Avoid symlink of /etc/localtime.
 RUN test -h /etc/localtime && rm -f /etc/localtime && cp /usr/share/zoneinfo/UTC /etc/localtime || true
 
-COPY ./node-problem-detector-${VERSION}-${BUILDOS}_${BUILDARCH}/bin/node-problem-detector /node-problem-detector
+COPY ./node-problem-detector-${VERSION}-${TARGETOS}_${TARGETARCH}/bin/node-problem-detector /node-problem-detector
 
-COPY ./node-problem-detector-${VERSION}-${BUILDOS}_${BUILDARCH}/bin/health-checker ./node-problem-detector-${VERSION}-${BUILDOS}_${BUILDARCH}/bin/log-counter /home/kubernetes/bin/
+COPY ./node-problem-detector-${VERSION}-${TARGETOS}_${TARGETARCH}/bin/health-checker ./node-problem-detector-${VERSION}-${TARGETOS}_${TARGETARCH}/bin/log-counter /home/kubernetes/bin/
 
-COPY ./node-problem-detector-${VERSION}-${BUILDOS}_${BUILDARCH}/config /config
+COPY ./node-problem-detector-${VERSION}-${TARGETOS}_${TARGETARCH}/config /config
 ENTRYPOINT ["/node-problem-detector", "--config.system-log-monitor=/config/kernel-monitor.json"]
