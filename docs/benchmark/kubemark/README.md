@@ -123,6 +123,7 @@ docker manifest push --insecure localhost:35000/k8s.gcr.io/debian-base:v2.0.0
 构建时直接运行 `build.sh` 即可，需要关注的是程序版本以及构建完成后推送的仓库
 
 ```bash
+# build-kubemark.sh
 ...
 VERSION=v0.8.9
 ...
@@ -153,4 +154,4 @@ kubectl create cm node-configmap -n kubemark --from-file=kernel.monitor=./kernel
 kubectl apply -n kubemark -f hollow-node_template.yaml
 ```
 
-相关的日志在 `/var/log` 下的 kubelet-hollow-node*、kubeproxy-hollow-node*、npd-hollow-node*
+kubemark 的相关日志在宿主机 `/var/log` 目录下的 kubelet-hollow-node*、kubeproxy-hollow-node*、npd-hollow-node*
