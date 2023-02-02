@@ -13,6 +13,15 @@ spec:
       labels:
         name: hollow-node
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/role
+                operator: NotIn
+                values:
+                - hollow-node
       initContainers:
       - name: init-inotify-limit
         image: busybox:1.32
