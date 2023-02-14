@@ -14,7 +14,7 @@
 FROM localhost:35000/k8s.gcr.io/debian-base:v2.0.0
 
 ARG TARGETOS
-ARG TARGETARCH 
+ARG TARGETARCH
 ARG VERSION
 
 MAINTAINER Random Liu <lantaol@google.com>

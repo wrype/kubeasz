@@ -99,7 +99,7 @@ GCE_SSH_KEY=id_rsa CL2_PROMETHEUS_NODE_SELECTOR='kubernetes.io/role: node' \
 - quay.io/prometheus-operator/prometheus-operator:v0.46.0
 - grafana/grafana:6.2.0
 - quay.io/prometheus/prometheus:v2.25.0
-- k8simage/kube-state-metrics:v2.0.0-rc.0
+- wrype/kube-state-metrics:v2.0.0-rc.0
 - opsdockerimage/e2e-test-images-resource-consumer:1.9
 - quay.io/prometheus/node-exporter:v1.0.1
 - prom/pushgateway:v1.4.2
