@@ -1,0 +1,5 @@
+
+11 iperf UDP. Same VM using Pod IP           ,4008.000000,4008,
+12 iperf UDP. Same VM using Virtual IP       ,3235.000000,3235,
+13 iperf UDP. Remote VM using Pod IP         ,270.000000,270,
+14 iperf UDP. Remote VM using Virtual IP     ,317.000000,317,

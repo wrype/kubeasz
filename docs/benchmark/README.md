@@ -3,9 +3,16 @@
 - [部署虚拟节点](#部署虚拟节点)
 - [clusterloader](#clusterloader)
   - [Grafana 浏览压测数据](#grafana-浏览压测数据)
+- [netperf](#netperf)
+  - [测试用例1~5（绘制失败）](#测试用例15绘制失败)
+  - [测试用例6~10](#测试用例610)
+  - [测试用例16~19](#测试用例1619)
+  - [测试用例20~23](#测试用例2023)
 - [附录](#附录)
   - [kubemark 镜像列表](#kubemark-镜像列表)
   - [clusterloader 镜像列表](#clusterloader-镜像列表)
+    - [testing/network/config.yaml](#testingnetworkconfigyaml)
+  - [netperf 镜像列表](#netperf-镜像列表)
   - [参考文档](#参考文档)
 
 <!-- /TOC -->
@@ -85,6 +92,71 @@ GCE_SSH_KEY=id_rsa CL2_PROMETHEUS_NODE_SELECTOR='kubernetes.io/role: node' \
 
 ![](pics/Snipaste_2023-01-30_15-15-31.png)
 
+## netperf
+
+`network/benchmarks/netperf` 目录下编译二进制文件，测试时最少要有2个 node 节点
+
+```bash
+./netperf --image wrype/netperf-latest:git.456482e -v 4 --testFrom 0 --testTo 23 | tee netperf.log
+```
+
+`--testFrom`、`--testTo` 用于指定测试用例，测试用例如下（nptest.go:170，从0开始计数）：
+1. Label: "1 qperf TCP. Same VM using Pod IP"
+2. Label: "2 qperf TCP. Same VM using Virtual IP"
+3. Label: "3 qperf TCP. Remote VM using Pod IP"
+4. Label: "4 qperf TCP. Remote VM using Virtual IP"
+5. Label: "5 qperf TCP. Hairpin Pod to own Virtual IP"
+6. Label: "1 iperf TCP. Same VM using Pod IP"
+7. Label: "2 iperf TCP. Same VM using Virtual IP"
+8. Label: "3 iperf TCP. Remote VM using Pod IP"
+9. Label: "4 iperf TCP. Remote VM using Virtual IP"
+10. Label: "5 iperf TCP. Hairpin Pod to own Virtual IP"
+11. Label: "6 iperf SCTP. Same VM using Pod IP"
+12. Label: "7 iperf SCTP. Same VM using Virtual IP"
+13. Label: "8 iperf SCTP. Remote VM using Pod IP"
+14. Label: "9 iperf SCTP. Remote VM using Virtual IP"
+15. Label: "10 iperf SCTP. Hairpin Pod to own Virtual IP"
+16. Label: "11 iperf UDP. Same VM using Pod IP"
+17. Label: "12 iperf UDP. Same VM using Virtual IP"
+18. Label: "13 iperf UDP. Remote VM using Pod IP"
+19. Label: "14 iperf UDP. Remote VM using Virtual IP"
+20. Label: "15 netperf. Same VM using Pod IP"
+21. Label: "16 netperf. Same VM using Virtual IP"
+22. Label: "17 netperf. Remote VM using Pod IP"
+23. Label: "18 netperf. Remote VM using Virtual IP"
+
+一段时间后会在 `results_netperf-latest` 目录下生成一个 csv 文件
+
+运行下面的命令生成图表：
+
+```bash
+docker run -it --rm -v `pwd`/results_netperf-latest:/plotdata girishkalele/netperf-plotperf --csv /plotdata/netperf-latest_XXX.csv --suffix XXX
+```
+
+### 测试用例1~5（绘制失败）
+
+[netperf-latest_20230217092346.csv](testdata/netperf-latest_20230217092346.csv)
+
+### 测试用例6~10
+
+[netperf-latest_20230217084729.csv](testdata/netperf-latest_20230217084729.csv)
+
+![](pics/20230217084729.bar.svg)
+
+![](pics/20230217084729.svg)
+
+### 测试用例16~19
+
+[netperf-latest_20230219021543.csv](testdata/netperf-latest_20230219021543.csv)
+
+![](./pics/20230219021543.bar.svg)
+
+### 测试用例20~23
+
+[netperf-latest_20230219023853.csv](testdata/netperf-latest_20230219023853.csv)
+
+![](./pics/20230219023853.bar.svg)
+
 ## 附录
 
 ### kubemark 镜像列表
@@ -105,6 +177,15 @@ GCE_SSH_KEY=id_rsa CL2_PROMETHEUS_NODE_SELECTOR='kubernetes.io/role: node' \
 - prom/pushgateway:v1.4.2
 - opsdockerimage/e2e-test-images-agnhost:2.32
   > tag to k8s.gcr.io/e2e-test-images/agnhost:2.32，无法修改为其他镜像
+
+####  testing/network/config.yaml
+
+- wrype/netperfbenchmark:0.3
+  > tag to gcr.io/k8s-testimages/netperfbenchmark:0.3，无法修改为其他镜像
+
+### netperf 镜像列表
+
+- wrype/netperf-latest:git.456482e
 
 ### 参考文档
 

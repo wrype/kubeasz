@@ -1,0 +1,5 @@
+
+15 netperf. Same VM using Pod IP             ,4355.070000,4355.07,
+16 netperf. Same VM using Virtual IP         ,0.000000,0,
+17 netperf. Remote VM using Pod IP           ,1466.430000,1466.43,
+18 netperf. Remote VM using Virtual IP       ,0.000000,0,
