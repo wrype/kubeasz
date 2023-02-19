@@ -176,7 +176,7 @@ docker run -it --rm -v `pwd`/results_netperf-latest:/plotdata girishkalele/netpe
 - quay.io/prometheus/node-exporter:v1.0.1
 - prom/pushgateway:v1.4.2
 - opsdockerimage/e2e-test-images-agnhost:2.32
-  > tag to k8s.gcr.io/e2e-test-images/agnhost:2.32，无法修改为其他镜像
+  > tag to registry.k8s.io/e2e-test-images/agnhost:2.32，无法修改为其他镜像
 
 ####  testing/network/config.yaml
 
