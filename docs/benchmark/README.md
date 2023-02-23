@@ -97,7 +97,7 @@ GCE_SSH_KEY=id_rsa CL2_PROMETHEUS_NODE_SELECTOR='kubernetes.io/role: node' \
 `network/benchmarks/netperf` 目录下编译二进制文件，测试时最少要有2个 node 节点
 
 ```bash
-./netperf --image wrype/netperf-latest:git.456482e -v 4 --testFrom 0 --testTo 23 | tee netperf.log
+./netperf --image wrype/netperf-latest:git.4fb93f2 -v 4 --testFrom 0 --testTo 23 | tee netperf.log
 ```
 
 `--testFrom`、`--testTo` 用于指定测试用例，测试用例如下（nptest.go:170，从0开始计数）：
@@ -185,7 +185,7 @@ docker run -it --rm -v `pwd`/results_netperf-latest:/plotdata girishkalele/netpe
 
 ### netperf 镜像列表
 
-- wrype/netperf-latest:git.456482e
+- wrype/netperf-latest:git.4fb93f2
 
 ### 参考文档
 
