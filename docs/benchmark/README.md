@@ -3,6 +3,7 @@
 - [部署虚拟节点](#部署虚拟节点)
 - [clusterloader](#clusterloader)
   - [Grafana 浏览压测数据](#grafana-浏览压测数据)
+  - [netperfbenchmark（使用 netperf 替代）](#netperfbenchmark使用-netperf-替代)
 - [netperf](#netperf)
   - [测试用例1~5（绘制失败）](#测试用例15绘制失败)
   - [测试用例6~10](#测试用例610)
@@ -11,7 +12,6 @@
 - [附录](#附录)
   - [kubemark 镜像列表](#kubemark-镜像列表)
   - [clusterloader 镜像列表](#clusterloader-镜像列表)
-    - [testing/network/config.yaml](#testingnetworkconfigyaml)
   - [netperf 镜像列表](#netperf-镜像列表)
   - [参考文档](#参考文档)
 
@@ -91,6 +91,49 @@ GCE_SSH_KEY=id_rsa CL2_PROMETHEUS_NODE_SELECTOR='kubernetes.io/role: node' \
 ![](pics/Snipaste_2023-01-30_15-14-19.png)
 
 ![](pics/Snipaste_2023-01-30_15-15-31.png)
+
+### netperfbenchmark（使用 [netperf](#netperf) 替代）
+
+> 测试结果不如 netperf 详细，并且 HTTP、UDP 测试用例有问题，使用 [netperf](#netperf) 替代
+
+clusterloader2/testing/network/config.yaml
+
+```bash
+export CL2_PROTOCOL=TCP
+export CL2_NUMBER_OF_SERVERS=1
+export CL2_NUMBER_OF_CLIENTS=1
+
+./clusterloader --kubeconfig=/root/.kube/config \
+--provider=local --provider-configs=ROOT_KUBECONFIG=/root/.kube/config \
+--v=4 \
+--testconfig=testing/network/config.yaml \
+--report-dir=./reports --alsologtostderr \
+2>&1 \
+| tee ./reports/clusterload.log
+```
+
+测试过程中出现无法访问自定义资源的问题
+
+![](pics/Snipaste_2023-03-10_16-17-31.png)
+
+排查后发现是因为使用了低版本 k8s client
+
+![](pics/Snipaste_2023-03-10_16-46-04.png)
+
+同时修改 `pkg/measurement/common/network/manifests/worker-deployment.yaml`，添加 Pod 反亲和
+> worker pod 出现在同一个 node 上会有问题
+
+![](pics/Snipaste_2023-03-11_17-44-09.png)
+
+修改后测试通过
+
+```
+I0311 17:34:23.904442   21459 simple_test_executor.go:149] Step "[step: 02] Gather network performance measurement" started
+I0311 17:34:49.905844   21459 reflector.go:225] Stopping reflector *unstructured.Unstructured (0s) from pkg/mod/k8s.io/client-go@v0.22.15/tools/cache/reflector.go:167
+I0311 17:35:04.926752   21459 network_performance_measurement.go:363] Metric value: 266968
+I0311 17:35:04.926771   21459 network_performance_measurement.go:413] TestResultSummary: &{   [{map[Value:266968] kbytes/sec map[Metric:Throughput]}]}
+I0311 17:35:04.926937   21459 simple_test_executor.go:171] Step "[step: 02] Gather network performance measurement" ended
+```
 
 ## netperf
 
@@ -178,11 +221,6 @@ docker run -it --rm -v `pwd`/results_netperf-latest:/plotdata girishkalele/netpe
 - opsdockerimage/e2e-test-images-agnhost:2.32
   > tag to registry.k8s.io/e2e-test-images/agnhost:2.32，无法修改为其他镜像
 
-####  testing/network/config.yaml
-
-- wrype/netperfbenchmark:0.3
-  > tag to gcr.io/k8s-testimages/netperfbenchmark:0.3，无法修改为其他镜像
-
 ### netperf 镜像列表
 
 - wrype/netperf-latest:git.4fb93f2
@@ -192,3 +230,5 @@ docker run -it --rm -v `pwd`/results_netperf-latest:/plotdata girishkalele/netpe
 http://bingerambo.com/posts/2020/12/k8s%E9%9B%86%E7%BE%A4%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95-kubemark/
 
 http://bingerambo.com/posts/2020/12/k8s%E9%9B%86%E7%BE%A4%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95-clusterloader/
+
+https://raw.githubusercontent.com/kubernetes/test-infra/master/config/jobs/kubernetes/sig-scalability/sig-scalability-periodic-jobs.yaml
