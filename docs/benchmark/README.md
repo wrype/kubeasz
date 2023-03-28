@@ -283,6 +283,8 @@ CL2_USE_ADVANCED_DNSTEST=true \
 - prom/pushgateway:v1.4.2
 - opsdockerimage/e2e-test-images-agnhost:2.32
   > tag to registry.k8s.io/e2e-test-images/agnhost:2.32，无法修改为其他镜像
+- wrype/dnsperfgo:v1.3.0
+- wrype/k8s-testimages-probes:v0.0.5
 
 ### netperf 镜像列表
 
