@@ -9,6 +9,8 @@
   - [测试用例6~10](#测试用例610)
   - [测试用例16~19](#测试用例1619)
   - [测试用例20~23](#测试用例2023)
+- [load](#load)
+  - [dnsperf](#dnsperf)
 - [附录](#附录)
   - [kubemark 镜像列表](#kubemark-镜像列表)
   - [clusterloader 镜像列表](#clusterloader-镜像列表)
@@ -137,6 +139,8 @@ I0311 17:35:04.926937   21459 simple_test_executor.go:171] Step "[step: 02] Gath
 
 ## netperf
 
+![](pics/Snipaste_2023-03-28_15-28-09.png)
+
 `network/benchmarks/netperf` 目录下编译二进制文件，测试时最少要有2个 node 节点
 
 ```bash
@@ -199,6 +203,65 @@ docker run -it --rm -v `pwd`/results_netperf-latest:/plotdata girishkalele/netpe
 [netperf-latest_20230219023853.csv](testdata/netperf-latest_20230219023853.csv)
 
 ![](./pics/20230219023853.bar.svg)
+
+## load
+
+![](pics/Snipaste_2023-03-03_17-18-07.png)
+
+```bash
+GCE_SSH_KEY=id_rsa CL2_PROMETHEUS_NODE_SELECTOR='kubernetes.io/role: node' CL2_LOAD_STS_STORAGE_CLASS='managed-nfs-storage' \
+./clusterloader --kubeconfig=/root/.kube/config \
+--provider=kubemark --provider-configs=ROOT_KUBECONFIG=/root/.kube/config \
+--v=4 \
+--testconfig=testing/load/config.yaml \
+--testoverrides=testing/experiments/enable_restart_count_check.yaml \
+--testoverrides=testing/experiments/use_simple_latency_query.yaml \
+--testoverrides=testing/overrides/load_throughput.yaml \
+--report-dir=./reports \
+--alsologtostderr \
+--enable-prometheus-server=true \
+--tear-down-prometheus-server=false \
+--prometheus-manifest-path `pwd`/pkg/prometheus/manifests \
+--prometheus-pvc-storage-class managed-nfs-storage \
+--prometheus-apiserver-scrape-port 6443 \
+--experimental-prometheus-snapshot-to-report-dir \
+2>&1 \
+| tee ./reports/clusterload.log
+```
+
+![](pics/Snipaste_2023-03-22_21-44-56.png)
+
+![](pics/Snipaste_2023-03-22_21-54-02.png)
+
+### dnsperf
+
+![](pics/Snipaste_2023-03-28_15-28-09.png)
+
+```bash
+GCE_SSH_KEY=id_rsa CL2_PROMETHEUS_NODE_SELECTOR='kubernetes.io/role: node' CL2_LOAD_STS_STORAGE_CLASS='managed-nfs-storage' \
+CL2_USE_ADVANCED_DNSTEST=true \
+./clusterloader --kubeconfig=/root/.kube/config \
+--provider=local --provider-configs=ROOT_KUBECONFIG=/root/.kube/config \
+--v=4 \
+--testconfig=testing/load/config.yaml \
+--testoverrides=testing/prometheus/not-scrape-kube-proxy.yaml \
+--report-dir=./reports \
+--alsologtostderr \
+--enable-prometheus-server=true \
+--tear-down-prometheus-server=false \
+--prometheus-manifest-path `pwd`/pkg/prometheus/manifests \
+--prometheus-pvc-storage-class managed-nfs-storage \
+--prometheus-apiserver-scrape-port 6443 \
+--experimental-prometheus-snapshot-to-report-dir \
+2>&1 \
+| tee ./reports/clusterload.log
+```
+
+![](pics/Snipaste_2023-03-28_16-16-34.png)
+
+![](pics/Snipaste_2023-03-28_16-17-10.png)
+
+![](pics/Snipaste_2023-03-28_16-19-28.png)
 
 ## 附录
 
