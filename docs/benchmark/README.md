@@ -278,6 +278,7 @@ CL2_USE_ADVANCED_DNSTEST=true \
 - grafana/grafana:6.2.0
 - quay.io/prometheus/prometheus:v2.25.0
 - wrype/kube-state-metrics:v2.0.0-rc.0
+  > tag to registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.0.0-rc.0
 - opsdockerimage/e2e-test-images-resource-consumer:1.9
 - quay.io/prometheus/node-exporter:v1.0.1
 - prom/pushgateway:v1.4.2
