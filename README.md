@@ -31,9 +31,9 @@
       <td>kubeasz version</td>
       <td>3.1.1</td>
       <td>3.2.0</td>
-      <td>3.3.2</td>
-      <td>3.4.3</td>
-      <td>3.5.0</td>
+      <td>3.3.5</td>
+      <td>3.4.6</td>
+      <td>3.5.3</td>
     </tr>
   </tbody>
 </table>
@@ -107,7 +107,7 @@
 
 ## 贡献&致谢
 
-请阅读[项目分支说明](docs/mixes/branch.md), 欢迎提[Issues](https://github.com/easzlab/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目！感谢您的关注与支持！
+欢迎提[Issues](https://github.com/easzlab/kubeasz/issues)和[PRs](docs/mixes/HowToContribute.md)参与维护项目！感谢您的关注与支持！
 - [如何 PR](docs/mixes/HowToContribute.md)
 - [如何捐赠](docs/mixes/donate.md)
 
