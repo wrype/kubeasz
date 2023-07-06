@@ -5,10 +5,10 @@
   - [Grafana 浏览压测数据](#grafana-浏览压测数据)
   - [netperfbenchmark（使用 netperf 替代）](#netperfbenchmark使用-netperf-替代)
 - [netperf](#netperf)
-  - [测试用例1~5（绘制失败）](#测试用例15绘制失败)
-  - [测试用例6~10](#测试用例610)
-  - [测试用例16~19](#测试用例1619)
-  - [测试用例20~23](#测试用例2023)
+  - [测试用例 1~5（绘制失败）](#测试用例-15绘制失败)
+  - [测试用例 6~10](#测试用例-610)
+  - [测试用例 16~19](#测试用例-1619)
+  - [测试用例 20~23](#测试用例-2023)
 - [load](#load)
   - [dnsperf](#dnsperf)
 - [附录](#附录)
@@ -36,11 +36,13 @@ kubectl apply -n kubemark -f hollow-node_template.yaml
 ## clusterloader
 
 使用 https://github.com/wrype/perf-tests 的 `kubeasz-k8s1.24-tester` 分支，基于 master 分支修改，做了以下改动：
+
 - 镜像修改，适配 arm64 架构
 - 修复 Prometheus 访问 apiserver 错误，修复 Grafana 调度问题
-- 优化访问方式，添加 NodePort
+- 优化 Prometheus、Grafana 访问方式，添加 NodePort
 
 测试时需要自己编译二进制文件，并且将 clusterloader2 整个目录打包上传到测试服务器
+
 ```bash
 # windows powershell 编译
 cd ./clusterloader2
@@ -51,6 +53,7 @@ go build -v -o clusterloader ./cmd
 ```
 
 基准测试只能使用 `perf-tests` 中的 prometheus，kubeasz 部署时需要把 `config.yml` 中的 `prom_install` 设置为 no
+
 > 参考 https://github.com/kubernetes/perf-tests/issues/1057
 
 ```bash
@@ -101,10 +104,7 @@ GCE_SSH_KEY=id_rsa CL2_PROMETHEUS_NODE_SELECTOR='kubernetes.io/role: node' \
 clusterloader2/testing/network/config.yaml
 
 ```bash
-export CL2_PROTOCOL=TCP
-export CL2_NUMBER_OF_SERVERS=1
-export CL2_NUMBER_OF_CLIENTS=1
-
+CL2_PROTOCOL=TCP CL2_NUMBER_OF_SERVERS=1 CL2_NUMBER_OF_CLIENTS=1 \
 ./clusterloader --kubeconfig=/root/.kube/config \
 --provider=local --provider-configs=ROOT_KUBECONFIG=/root/.kube/config \
 --v=4 \
@@ -123,6 +123,7 @@ export CL2_NUMBER_OF_CLIENTS=1
 ![](pics/Snipaste_2023-03-10_16-46-04.png)
 
 同时修改 `pkg/measurement/common/network/manifests/worker-deployment.yaml`，添加 Pod 反亲和
+
 > worker pod 出现在同一个 node 上会有问题
 
 ![](pics/Snipaste_2023-03-11_17-44-09.png)
@@ -141,13 +142,14 @@ I0311 17:35:04.926937   21459 simple_test_executor.go:171] Step "[step: 02] Gath
 
 ![](pics/Snipaste_2023-03-28_15-28-09.png)
 
-`network/benchmarks/netperf` 目录下编译二进制文件，测试时最少要有2个 node 节点
+`network/benchmarks/netperf` 目录下编译二进制文件，测试时最少要有 2 个 node 节点
 
 ```bash
 ./netperf --image wrype/netperf-latest:git.4fb93f2 -v 4 --testFrom 0 --testTo 23 | tee netperf.log
 ```
 
-`--testFrom`、`--testTo` 用于指定测试用例，测试用例如下（nptest.go:170，从0开始计数）：
+`--testFrom`、`--testTo` 用于指定测试用例，测试用例如下（nptest.go:170，从 0 开始计数）：
+
 1. Label: "1 qperf TCP. Same VM using Pod IP"
 2. Label: "2 qperf TCP. Same VM using Virtual IP"
 3. Label: "3 qperf TCP. Remote VM using Pod IP"
@@ -180,11 +182,11 @@ I0311 17:35:04.926937   21459 simple_test_executor.go:171] Step "[step: 02] Gath
 docker run -it --rm -v `pwd`/results_netperf-latest:/plotdata girishkalele/netperf-plotperf --csv /plotdata/netperf-latest_XXX.csv --suffix XXX
 ```
 
-### 测试用例1~5（绘制失败）
+### 测试用例 1~5（绘制失败）
 
 [netperf-latest_20230217092346.csv](testdata/netperf-latest_20230217092346.csv)
 
-### 测试用例6~10
+### 测试用例 6~10
 
 [netperf-latest_20230217084729.csv](testdata/netperf-latest_20230217084729.csv)
 
@@ -192,13 +194,13 @@ docker run -it --rm -v `pwd`/results_netperf-latest:/plotdata girishkalele/netpe
 
 ![](pics/20230217084729.svg)
 
-### 测试用例16~19
+### 测试用例 16~19
 
 [netperf-latest_20230219021543.csv](testdata/netperf-latest_20230219021543.csv)
 
 ![](./pics/20230219021543.bar.svg)
 
-### 测试用例20~23
+### 测试用例 20~23
 
 [netperf-latest_20230219023853.csv](testdata/netperf-latest_20230219023853.csv)
 
